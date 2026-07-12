@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import form_error %}
+
+{% block title %}Dashboard — Verda Farm{% endblock %}
+
+{# The signed-in area is an app shell, not a marketing page: the site header and
+   footer give way to a left rail, so nothing competes with the account itself. #}
+{% block body_class %}app-shell{% endblock %}
+
+{% block chrome_header %}{% include "partials/sidebar.html" %}{% endblock %}
+{% block chrome_footer %}{% endblock %}
+
+{% block content %}
+<section class="shell shell--app view" style="padding-bottom:64px">
+
+  <div class="dash-head">
+    <div>
+      <span class="eyebrow">My account</span>
+      <h1>Hello, {{ account_name }}</h1>
+    </div>
+    <a class="btn btn--ghost btn--sm" href="{{ url_for('shop.index') }}">Start shopping</a>
+  </div>
+
+  {{ form_error(error) }}
+
+  <div class="stat-row">
+    <div class="stat">
+      <span class="stat__label">Orders placed</span>
+      <strong class="stat__value">{{ stats.orders }}</strong>
+    </div>
+    <div class="stat">
+      <span class="stat__label">Total spent</span>
+      <strong class="stat__value">{{ stats.spent | naira }}</strong>
+    </div>
+    <div class="stat">
+      <span class="stat__label">In progress</span>
+      <strong class="stat__value">{{ stats.in_progress }}</strong>
+    </div>
+  </div>
+
+  <div class="dash-layout">
+    <div>
+      <h2>Order history</h2>
+
+      {% if orders %}
+        <div class="order-list">
+          {% for o in orders %}
+            <div class="order">
+              <div class="order__head">
+                <span style="font-weight:600">{{ o.number }}</span>
+                <span class="badge {{ 'badge--pending' if o.status == 'Processing' else 'badge--done' }}">{{ o.status }}</span>
+              </div>
+              <div class="order__items">{{ o.contents }}</div>
+              <div class="order__foot">
+                <span>{{ o.date }}</span>
+                <strong>{{ o.total | naira }}</strong>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="dash-empty">
+          <p>No orders yet — your first harvest box is a click away.</p>
+          <a class="btn btn--primary btn--sm" href="{{ url_for('shop.index') }}">Start shopping</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="prefs">
+      <h2>Preferences</h2>
+
+      <form method="post" action="{{ url_for('dashboard.preferences') }}" class="prefs__list">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        {% for name, label in toggles %}
+          <label class="prefs__row">
+            <span>{{ label }}</span>
+            <input type="checkbox" name="{{ name }}" {{ 'checked' if prefs[name] }}>
+          </label>
+        {% endfor %}
+
+        <div class="prefs__addr">
+          <div class="field">
+            <label for="f-delivery">Default delivery</label>
+            <input id="f-delivery" type="text" name="delivery_address" value="{{ prefs.delivery_address }}">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--block btn--sm">Save preferences</button>
+      </form>
+    </div>
+  </div>
+
+</section>
+{% endblock %}

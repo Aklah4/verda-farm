@@ -1,0 +1,72 @@
+{# The signed-in app shell's left rail: brand, account, nav, sign out.
+
+   Replaces the site header on the dashboard. Below the nav breakpoint it stops
+   being a rail and becomes a top bar whose links collapse behind the hamburger,
+   so the same markup serves a desktop sidebar and a phone header. #}
+
+<aside class="side-nav">
+  <div class="side-nav__bar">
+    <a class="brand" href="{{ url_for('main.home') }}">
+      <div class="brand__mark">V</div>
+      <span class="brand__name">Verda Farm</span>
+    </a>
+    <button
+      type="button"
+      class="nav-toggle"
+      data-nav-toggle="side-menu"
+      aria-controls="side-menu"
+      aria-expanded="false"
+      aria-label="Menu"
+    >
+      <span class="nav-toggle__bars" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <div class="side-nav__menu" id="side-menu">
+    <div class="side-nav__account">
+      <span class="account-chip__avatar" aria-hidden="true"
+        >{{ account_name[:1] | upper }}</span
+      >
+      <span class="side-nav__name">{{ account_name }}</span>
+    </div>
+
+    <nav class="side-nav__links">
+      <a
+        href="{{ url_for('dashboard.index') }}"
+        class="{{ 'is-active' if active in ('dashboard.index', 'dashboard.preferences') }}"
+        >Dashboard</a
+      >
+      {# Shown only to superadmins. The /admin guard re-checks the role against
+         the database — hiding the link is presentation, not protection. #}
+      {% if is_admin %}
+      <a
+        href="{{ url_for('admin.index') }}"
+        class="{{ 'is-active' if active in ('admin.index', 'admin.new', 'admin.edit', 'admin.create', 'admin.save') }}"
+        >Catalogue <span class="side-nav__badge">Admin</span></a
+      >
+      <a
+        href="{{ url_for('admin.hero') }}"
+        class="{{ 'is-active' if active in ('admin.hero', 'admin.save_hero') }}"
+        >Home page <span class="side-nav__badge">Admin</span></a
+      >
+      {% endif %}
+      <a
+        href="{{ url_for('shop.index') }}"
+        class="{{ 'is-active' if active in ('shop.index', 'shop.product') }}"
+        >Shop</a
+      >
+      <a
+        href="{{ url_for('cart.index') }}"
+        class="{{ 'is-active' if active == 'cart.index' }}"
+      >
+        Cart {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+      </a>
+    </nav>
+
+    {# Signing out changes state, so it is a POST, not a link. #}
+    <form method="post" action="{{ url_for('auth.logout') }}" class="side-nav__out">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <button type="submit" class="btn btn--ghost btn--sm btn--block">Sign out</button>
+    </form>
+  </div>
+</aside>

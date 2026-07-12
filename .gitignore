@@ -1,0 +1,29 @@
+# Secrets. .env holds the Atlas URI, the Cloudinary secret and the admin
+# password — it must never be committed. The wildcard also covers the copies
+# people make by hand (.env.local, .env.backup, .env.prod): that is usually how
+# secrets reach GitHub — not through .env itself, but through a variant of it.
+.env
+.env.*
+!.env.example
+
+# Virtualenvs
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Logs and local scratch
+*.log
+instance/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

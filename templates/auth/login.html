@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import field, form_error %}
+
+{% block title %}Sign in — Verda Farm{% endblock %}
+
+{% block content %}
+<section class="shell view" style="padding-bottom:64px">
+
+  <div class="signin-card">
+    <h1>Welcome back</h1>
+    <p>Sign in to track orders and manage your preferences.</p>
+
+    {{ form_error(error) }}
+
+    <form method="post" action="{{ url_for('auth.login') }}" class="form-stack" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {# Carry the page they were headed for through the POST. #}
+      <input type="hidden" name="next" value="{{ request.values.get('next', '') }}">
+
+      {{ field('email', 'Email', form, type='email', autocapitalize='none', autocomplete='email') }}
+      {{ field('password', 'Password', form, type='password', autocomplete='current-password') }}
+
+      <button type="submit" class="btn btn--primary btn--block" style="margin-top:4px">Sign in</button>
+      <p class="hint">
+        New here? <a href="{{ url_for('auth.register', next=request.values.get('next', '')) }}">Create an account</a>.
+      </p>
+    </form>
+  </div>
+
+</section>
+{% endblock %}

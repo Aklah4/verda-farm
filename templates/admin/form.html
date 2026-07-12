@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import form_error %}
+
+{# One template for both new and edit: a product with an id already exists, so
+   the form posts to `save`; otherwise it posts to `create`. #}
+{% set editing = product.id is defined and product.id %}
+
+{% block title %}{{ 'Edit ' ~ product.name if editing else 'Add product' }} — Verda Admin{% endblock %}
+
+{% block body_class %}app-shell{% endblock %}
+{% block chrome_header %}{% include "partials/sidebar.html" %}{% endblock %}
+{% block chrome_footer %}{% endblock %}
+
+{% block content %}
+<section class="shell shell--app view" style="padding-bottom:64px">
+
+  <a class="btn-back" href="{{ url_for('admin.index') }}">← Back to catalogue</a>
+
+  <div class="dash-head">
+    <div>
+      <span class="eyebrow">{{ 'Editing' if editing else 'New product' }}</span>
+      <h1>{{ product.name if editing else 'Add a product' }}</h1>
+    </div>
+  </div>
+
+  {{ form_error(error) }}
+
+  <form
+    method="post"
+    action="{{ url_for('admin.save', product_id=product.id) if editing else url_for('admin.create') }}"
+    class="admin-form"
+    enctype="multipart/form-data"
+    novalidate
+  >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="admin-form__main">
+      <div class="field">
+        <label for="f-name">Name</label>
+        <input id="f-name" type="text" name="name" value="{{ product.name | default('', true) }}">
+        {% if editing %}
+          {# The slug is in every product URL and in live carts, so it is fixed
+             once created — renaming the product does not move the page. #}
+          <p class="hint">Web address: /product/{{ product.id }} — fixed once created.</p>
+        {% endif %}
+      </div>
+
+      <div class="field">
+        <label for="f-blurb">Description</label>
+        <textarea id="f-blurb" name="blurb" rows="3">{{ product.blurb | default('', true) }}</textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="f-price">Price (₦)</label>
+          <input id="f-price" type="number" name="price" min="0" step="1"
+                 value="{{ product.price | default(0, true) }}">
+        </div>
+        <div class="field">
+          <label for="f-unit">Unit</label>
+          <input id="f-unit" type="text" name="unit" placeholder="per kg"
+                 value="{{ product.unit | default('', true) }}">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="f-cat">Category</label>
+          <select id="f-cat" name="cat">
+            <option value="">Choose…</option>
+            {% for c in categories %}
+              <option value="{{ c }}" {{ 'selected' if product.cat == c }}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-tag">Badge</label>
+          <input id="f-tag" type="text" name="tag" placeholder="Fresh"
+                 value="{{ product.tag | default('', true) }}">
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field__label">Sold to</span>
+        <div class="check-row">
+          {% for a in audiences %}
+            <label class="check">
+              <input type="checkbox" name="aud" value="{{ a }}"
+                     {{ 'checked' if a in (product.aud or []) }}>
+              <span>{{ a | capitalize }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <aside class="admin-form__side">
+      <div class="field">
+        <label for="f-stock">Stock level</label>
+        <input id="f-stock" type="number" name="stock" min="0" step="1"
+               value="{{ product.stock | default(0, true) }}">
+        <p class="hint">Shown to shoppers. It does not block orders.</p>
+      </div>
+
+      <div class="field">
+        <span class="field__label">Photo</span>
+
+        {% if product.image_url %}
+          <img class="admin-preview" src="{{ product.image_url }}" alt="{{ product.name }}">
+        {% else %}
+          <div class="admin-preview admin-preview--swatch"
+               style="background:{{ product.tone | default('#E9DFA0', true) }}">
+            <span>No photo — swatch shown</span>
+          </div>
+        {% endif %}
+
+        {% if uploads_enabled %}
+          <input id="f-image" type="file" name="image" accept="image/*">
+          <p class="hint">
+            {{ 'Replaces the current photo.' if product.image_url else 'JPG, PNG, WebP or AVIF.' }}
+          </p>
+        {% else %}
+          <p class="hint">
+            Add <code>CLOUDINARY_URL</code> to <code>.env</code> and restart to enable uploads.
+          </p>
+        {% endif %}
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="f-tone">Swatch</label>
+          <input id="f-tone" type="color" name="tone"
+                 value="{{ product.tone | default('#E9DFA0', true) }}">
+        </div>
+        <div class="field">
+          <label for="f-ink">Swatch text</label>
+          <input id="f-ink" type="color" name="ink"
+                 value="{{ product.ink | default('#524711', true) }}">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--block">
+        {{ 'Save changes' if editing else 'Add product' }}
+      </button>
+    </aside>
+  </form>
+
+</section>
+{% endblock %}

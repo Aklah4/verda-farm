@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import field, textarea, form_error, form_done %}
+
+{% block title %}Contact — Verda Farm{% endblock %}
+
+{% block content %}
+<section class="shell view" style="padding-bottom:64px">
+  <span class="eyebrow">Contact</span>
+  <h1 class="display" style="margin:10px 0 30px">Get in touch</h1>
+
+  <div class="contact-layout">
+
+    <div class="contact-list">
+      <div class="contact-item">
+        <span class="contact-item__icon">📍</span>
+        <div>
+          <div class="contact-item__t">Farm &amp; office</div>
+          <div class="contact-item__d">Km 12 Ibadan–Oyo Road, Oyo State, Nigeria</div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <span class="contact-item__icon">📞</span>
+        <div>
+          <div class="contact-item__t">Phone</div>
+          <div class="contact-item__d">+234 800 123 4567</div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <span class="contact-item__icon">✉️</span>
+        <div>
+          <div class="contact-item__t">Email</div>
+          <div class="contact-item__d">hello@verdafarm.ng</div>
+        </div>
+      </div>
+
+      <form method="post" action="{{ url_for('main.whatsapp') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="whatsapp-btn" style="width:100%">💬 Chat with us on WhatsApp</button>
+      </form>
+
+      <div class="social-row">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">X</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+
+    <div class="form-card">
+      {% if done %}
+        {{ form_done('Message sent', 'Thanks for reaching out — a confirmation is on its way to your inbox and our team will reply shortly.') }}
+      {% else %}
+        <h2>Send us a message</h2>
+        {{ form_error(error) }}
+        <form method="post" class="form-stack" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="form-row">
+            {{ field('name', 'Name', form) }}
+            {{ field('email', 'Email', form, type='email') }}
+          </div>
+          {{ field('subject', 'Subject', form) }}
+          {{ textarea('message', 'Message', form, rows=4) }}
+          <button type="submit" class="btn btn--primary btn--block">Send message</button>
+        </form>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+{% endblock %}

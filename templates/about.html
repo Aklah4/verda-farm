@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Our story — Verda Farm{% endblock %}
+
+{% block content %}
+<div class="view">
+
+<section class="band">
+  <div class="about-hero">
+    <span class="eyebrow eyebrow--light">Our story</span>
+    <h1>Grown in Nigeria. Trusted from field to table.</h1>
+    <p>We're a family-run farm and produce company built on one belief: food is better when you know exactly where it came from.</p>
+  </div>
+</section>
+
+<section class="mission">
+  <div class="mission__photo">
+    <span class="swatch-label" style="color:#0e2e18">Field photo · our farm</span>
+  </div>
+  <div>
+    <h2>Our mission</h2>
+    <p>To make fresh, high-quality Nigerian produce accessible — to households, to businesses, and to buyers around the world — while paying fair value back to the land and the people who work it.</p>
+    <p>We rotate 14 crops across 120+ acres, harvest to order, and keep a documented trail from seed to shipment.</p>
+  </div>
+</section>
+
+<section style="background:var(--mist)">
+  <div class="shell" style="padding-top:56px;padding-bottom:56px">
+    <h2 style="font-family:var(--serif);font-size:30px;font-weight:600;margin:0 0 28px;text-align:center">How we farm</h2>
+
+    <div class="value-grid">
+      <div class="value">
+        <div class="value__icon">🌱</div>
+        <h3>Grown responsibly</h3>
+        <p>Crop rotation, minimal inputs, and soil care that keeps our fields productive year after year.</p>
+      </div>
+      <div class="value">
+        <div class="value__icon">🌾</div>
+        <h3>Harvested at peak</h3>
+        <p>We pick when produce is ready — not when a truck is leaving — so quality reaches you intact.</p>
+      </div>
+      <div class="value">
+        <div class="value__icon">📦</div>
+        <h3>Sold direct</h3>
+        <p>No layers of middlemen. Better prices for you, fairer returns for the farm.</p>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:34px">
+      <a class="btn btn--primary" href="{{ url_for('shop.index') }}">Explore the shop</a>
+    </div>
+  </div>
+</section>
+
+</div>
+{% endblock %}

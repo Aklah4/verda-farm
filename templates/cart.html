@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import field, form_error %}
+
+{% block title %}Your cart — Verda Farm{% endblock %}
+
+{# A signed-in shopper gets the same left rail as their dashboard: filling in an
+   address and card details is account work, not browsing, and the marketing
+   header and footer only compete with it. A guest still checks out inside the
+   normal storefront chrome — they have no account to sit inside. #}
+{% block body_class %}{{ 'app-shell' if logged_in }}{% endblock %}
+
+{% block chrome_header %}
+  {% if logged_in %}{% include "partials/sidebar.html" %}{% else %}{{ super() }}{% endif %}
+{% endblock %}
+
+{% block chrome_footer %}
+  {% if not logged_in %}{{ super() }}{% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="shell {{ 'shell--app' if logged_in }} view" style="padding-bottom:64px">
+  <h1 style="font-family:var(--serif);font-size:clamp(30px,4vw,44px);font-weight:500;letter-spacing:-.01em;margin:0 0 28px">Your cart</h1>
+
+  {% if cart.lines %}
+  <div class="cart-layout">
+
+    <div class="cart-lines">
+      {% for line in cart.lines %}
+        {% set p = line.product %}
+        <div class="cart-line">
+          <div class="cart-line__thumb" style="background:{{ p.tone }}">
+            {% if p.image_url %}
+              <img src="{{ p.image_url }}" alt="{{ p.name }}" loading="lazy">
+            {% endif %}
+          </div>
+
+          <div class="cart-line__info">
+            <div>{{ p.name }}</div>
+            <div>{{ p.price | naira }} {{ p.unit }}</div>
+          </div>
+
+          <div class="stepper stepper--sm">
+            <form method="post" action="{{ url_for('cart.update') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="product_id" value="{{ p.id }}">
+              <input type="hidden" name="delta" value="dec">
+              <button type="submit" aria-label="Decrease quantity">−</button>
+            </form>
+            <span style="min-width:28px;text-align:center;font-weight:600">{{ line.qty }}</span>
+            <form method="post" action="{{ url_for('cart.update') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="product_id" value="{{ p.id }}">
+              <input type="hidden" name="delta" value="inc">
+              <button type="submit" aria-label="Increase quantity">+</button>
+            </form>
+          </div>
+
+          <div class="cart-line__total">{{ line.line_total | naira }}</div>
+
+          <form method="post" action="{{ url_for('cart.remove') }}" class="cart-line__remove-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="product_id" value="{{ p.id }}">
+            <button type="submit" class="cart-line__remove" title="Remove {{ p.name }}">×</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="checkout">
+      <h2>Checkout</h2>
+
+      <div class="sum-row"><span>Subtotal</span><span>{{ cart.subtotal | naira }}</span></div>
+      <div class="sum-row"><span>Delivery</span><span>{{ cart.delivery | naira }}</span></div>
+      <div class="sum-row sum-row--total"><span>Total</span><span>{{ cart.total | naira }}</span></div>
+
+      {{ form_error(error) }}
+
+      <form method="post" action="{{ url_for('cart.checkout') }}" class="form-stack" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {{ field('name', 'Full name', form) }}
+        <div class="form-row">
+          {{ field('email', 'Email', form, type='email') }}
+          {{ field('phone', 'Phone', form, type='tel') }}
+        </div>
+        {{ field('address', 'Delivery address', form) }}
+        <div class="form-row">
+          {{ field('city', 'City', form) }}
+          {{ field('card', 'Card number', form, placeholder='4000 0000 0000') }}
+        </div>
+        <div class="form-row">
+          {{ field('exp', 'Expiry', form, placeholder='MM/YY') }}
+          {{ field('cvc', 'CVC', form, placeholder='123') }}
+        </div>
+        <button type="submit" class="btn btn--primary btn--block" style="margin-top:6px">
+          Pay {{ cart.total | naira }} &amp; place order
+        </button>
+        <p class="fineprint">🔒 Prototype checkout — no real payment is processed.</p>
+      </form>
+    </div>
+
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div style="font-size:40px;margin-bottom:12px">🧺</div>
+    <h2>Your cart is empty</h2>
+    <p>Browse the harvest and add something fresh.</p>
+    <a class="btn btn--primary" href="{{ url_for('shop.index') }}">Go to shop</a>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

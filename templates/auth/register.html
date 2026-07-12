@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import field, form_error %}
+
+{% block title %}Create your account — Verda Farm{% endblock %}
+
+{% block content %}
+<section class="shell view" style="padding-bottom:64px">
+
+  <div class="signin-card">
+    <h1>Create your account</h1>
+    <p>One account for your orders, delivery details and preferences.</p>
+
+    {{ form_error(error) }}
+
+    <form method="post" action="{{ url_for('auth.register') }}" class="form-stack" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {# Carry the page they were headed for through the POST. #}
+      <input type="hidden" name="next" value="{{ request.values.get('next', '') }}">
+
+      {{ field('first_name', 'First name', form) }}
+      {{ field('last_name', 'Last name', form) }}
+      {{ field('email', 'Email', form, type='email') }}
+      {# Never re-filled on error — the macro only echoes back what the route put
+         in `form`, and passwords are deliberately kept out of it. #}
+      {{ field('password', 'Password', form, type='password') }}
+      {{ field('retype_password', 'Retype password', form, type='password') }}
+
+      <button type="submit" class="btn btn--primary btn--block" style="margin-top:4px">Create account</button>
+      <p class="hint">
+        Already have an account?
+        <a href="{{ url_for('auth.login', next=request.values.get('next', '')) }}">Sign in</a>.
+      </p>
+    </form>
+  </div>
+
+</section>
+{% endblock %}

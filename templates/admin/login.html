@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import field, form_error %}
+
+{% block title %}Admin sign in — Verda Farm{% endblock %}
+
+{# No shop header, no footer, no cart: this is a staff door, not a storefront
+   page, and nothing here should invite a customer to wander in. #}
+{% block body_class %}auth-shell{% endblock %}
+{% block chrome_header %}{% endblock %}
+{% block chrome_footer %}{% endblock %}
+{% block chrome_fab %}{% endblock %}
+
+{% block content %}
+<section class="auth-panel view">
+  <div class="signin-card signin-card--admin">
+    <a class="brand" href="{{ url_for('main.home') }}">
+      <div class="brand__mark">V</div>
+      <span class="brand__name">Verda Farm</span>
+    </a>
+
+    <span class="eyebrow">Superadmin</span>
+    <h1>Staff sign in</h1>
+    <p>Manage the catalogue, inventory and product photos.</p>
+
+    {{ form_error(error) }}
+
+    <form method="post" action="{{ url_for('admin.login') }}" class="form-stack" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="next" value="{{ request.values.get('next', '') }}">
+
+      {# A username, not an email: staff do not need a mailbox to run the shop.
+         autocapitalize='none' stops a phone keyboard turning "admin" into
+         "Admin" and autocorrect turning it into something else entirely. #}
+      {{ field('username', 'Username', form, autocapitalize='none', autocomplete='username') }}
+      {{ field('password', 'Password', form, type='password', autocomplete='current-password') }}
+
+      <button type="submit" class="btn btn--primary btn--block" style="margin-top:4px">Sign in</button>
+    </form>
+
+    <p class="hint hint--center">
+      Shopping instead? <a href="{{ url_for('auth.login') }}">Customer sign in</a>.
+    </p>
+  </div>
+</section>
+{% endblock %}

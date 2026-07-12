@@ -1,0 +1,173 @@
+{% extends "base.html" %} {% from "partials/macros.html" import product_card %}
+{% block title %}Verda Farm — Honest produce, grown with care{% endblock %} {%
+block content %}
+<div class="view">
+  {% if hero_layout == 'centered' %}
+  <section class="band">
+    <div class="hero-centered">
+      <span class="eyebrow eyebrow--light">From our fields in Nigeria</span>
+      <h1>Honest produce, grown with care &amp; sold direct.</h1>
+      <p class="lede">
+        Fresh produce, staples and export-grade cash crops — from household
+        baskets to wholesale pallets.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn--primary" href="{{ url_for('shop.index') }}">Shop produce</a>
+    </div>
+  </section>
+  {% else %}
+  <section class="hero-split">
+    <div>
+      <span class="eyebrow">From our fields in Nigeria</span>
+      <h1>Honest produce, grown with care &amp; sold direct.</h1>
+      <p class="lede">
+        Verda Farm supplies fresh produce, staples and export-grade cash crops —
+        from household baskets to wholesale pallets. No middlemen, no guesswork.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn--primary" href="{{ url_for('shop.index') }}"
+          >Shop produce</a
+        >
+        <a class="btn btn--ghost" href="{{ url_for('main.about') }}"
+          >Our story</a
+        >
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stats__n">14</div>
+          <div class="hero-stats__l">crops in rotation</div>
+        </div>
+        <div>
+          <div class="hero-stats__n">48h</div>
+          <div class="hero-stats__l">field to doorstep</div>
+        </div>
+        <div>
+          <div class="hero-stats__n">6</div>
+          <div class="hero-stats__l">export markets</div>
+        </div>
+      </div>
+    </div>
+    {# Editable from /admin/hero. A tile with no photo keeps its colour, which
+       is also what shows while the photo is still loading. #}
+    <div class="hero-collage">
+      {% for t in hero_tiles %}
+      <div style="background: {{ t.tone }}">
+        {% if t.image_url %}
+        <img
+          class="hero-collage__img"
+          src="{{ t.image_url }}"
+          alt="{{ t.label }}"
+          {% if not loop.first %}loading="lazy"{% endif %}
+        />
+        {% else %}
+        <span class="swatch-label" style="color: {{ t.ink }}">{{ t.label }}</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section
+    class="shell shell--flush"
+    style="padding-top: 44px; padding-bottom: 20px"
+  >
+    <div class="section-head">
+      <h2 class="section-title" style="margin: 0">Shop by category</h2>
+      <a class="btn-link" href="{{ url_for('shop.index') }}"
+        >View all products →</a
+      >
+    </div>
+    <div class="cat-grid">
+      {% for c in category_cards %}
+      <a
+        class="cat-card"
+        style="background: {{ c.tone or '#ffffff' }}"
+        href="{{ url_for('shop.index', cat=c.label) }}"
+      >
+        <div class="cat-card__t">{{ c.label }}</div>
+        <div class="cat-card__d">{{ c.desc }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="shell" style="padding-top: 36px; padding-bottom: 20px">
+    <h2 class="section-title">This week's harvest</h2>
+    <div class="product-grid">
+      {% for p in featured %}{{ product_card(p) }}{% endfor %}
+    </div>
+  </section>
+
+  <section class="shell">
+    <div class="panel-grid">
+      <div class="panel">
+        <div class="panel__k">Retail</div>
+        <h3>Fresh for your home</h3>
+        <p>
+          Order produce and pantry staples for the household — delivered fresh.
+        </p>
+        <a class="btn-link" href="{{ url_for('shop.index') }}"
+          >Start shopping →</a
+        >
+      </div>
+      <div class="panel">
+        <div class="panel__k">Wholesale</div>
+        <h3>Bulk for business</h3>
+        <p>
+          Supermarkets, restaurants and distributors — volume pricing and
+          standing orders.
+        </p>
+        <a class="btn-link" href="{{ url_for('leads.wholesale') }}"
+          >Wholesale portal →</a
+        >
+      </div>
+      <div class="panel">
+        <div class="panel__k">Export</div>
+        <h3>Source from Nigeria</h3>
+        <p>
+          Cocoa, sesame, cashew and more — export-grade, documented, shipped.
+        </p>
+        <a class="btn-link" href="{{ url_for('leads.export') }}"
+          >Export inquiry →</a
+        >
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="story">
+      <div>
+        <span class="eyebrow eyebrow--light">Our story</span>
+        <h2>We farm what we sell, and we know exactly where it comes from.</h2>
+        <p>
+          Verda Farm began with a few acres and a simple idea — grow well,
+          harvest at peak, and sell straight to the people who use it. Today we
+          serve homes, businesses and buyers abroad.
+        </p>
+        <a class="btn btn--light" href="{{ url_for('main.about') }}"
+          >Read our story</a
+        >
+      </div>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat__n">2016</div>
+          <div class="stat__l">founded</div>
+        </div>
+        <div class="stat">
+          <div class="stat__n">120+</div>
+          <div class="stat__l">acres in rotation</div>
+        </div>
+        <div class="stat">
+          <div class="stat__n">40+</div>
+          <div class="stat__l">wholesale partners</div>
+        </div>
+        <div class="stat">
+          <div class="stat__n">100%</div>
+          <div class="stat__l">traceable</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

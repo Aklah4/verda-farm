@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import field, textarea, form_error, form_done %}
+
+{% block title %}Export — Verda Farm{% endblock %}
+
+{% block content %}
+<div class="view">
+
+<section class="band">
+  <div class="shell" style="padding-top:56px;padding-bottom:56px">
+    <span class="eyebrow eyebrow--light">Export</span>
+    <h1>Export-grade agricultural products, sourced from Nigeria.</h1>
+    <p class="lede">Cocoa, sesame, cashew and processed goods — cleaned, graded, documented and shipped to buyers worldwide.</p>
+  </div>
+</section>
+
+<section class="shell" style="padding-top:48px;padding-bottom:48px">
+  <div class="steps">
+    {% for number, title, body in steps %}
+      <div class="step">
+        <div class="step__n">{{ number }}</div>
+        <h3>{{ title }}</h3>
+        <p>{{ body }}</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="form-card form-card--center">
+    {% if done %}
+      {{ form_done('Inquiry received', 'Our export desk will respond with product availability, grades and indicative pricing within two business days.') }}
+    {% else %}
+      <h2>Submit an export inquiry</h2>
+      {{ form_error(error) }}
+      <form method="post" class="form-stack" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-row">
+          {{ field('company', 'Company', form) }}
+          {{ field('country', 'Country', form) }}
+        </div>
+        <div class="form-row">
+          {{ field('product', 'Product of interest', form, placeholder='e.g. Cocoa beans') }}
+          {{ field('volume', 'Volume', form, placeholder='e.g. 2 x 20ft') }}
+        </div>
+        {{ field('email', 'Email', form, type='email') }}
+        {{ textarea('message', 'Details', form, rows=3) }}
+        <button type="submit" class="btn btn--primary btn--block">Submit inquiry</button>
+      </form>
+    {% endif %}
+  </div>
+</section>
+
+</div>
+{% endblock %}

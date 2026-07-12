@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import product_card, stock_note %}
+
+{% block title %}{{ product.name }} — Verda Farm{% endblock %}
+
+{% block content %}
+<section class="shell view" style="padding-top:28px;padding-bottom:64px">
+  <a class="btn-back" href="{{ url_for('shop.index') }}">← Back to shop</a>
+
+  <div class="pdp">
+    <div class="pdp__media" style="background:{{ product.tone }}">
+      <span class="pdp__tag">{{ product.tag }}</span>
+      {% if product.image_url %}
+        <img class="pdp__img" src="{{ product.image_url }}" alt="{{ product.name }}">
+      {% else %}
+        <span style="color:{{ product.ink }}">{{ product.name }} · product photo</span>
+      {% endif %}
+    </div>
+
+    <div>
+      <div class="pdp__cat">{{ product.cat }}</div>
+      <h1>{{ product.name }}</h1>
+      <p class="pdp__blurb">{{ product.blurb }}</p>
+      {{ stock_note(product) }}
+
+      <div class="pdp__price">
+        <strong>{{ product.price | naira }}</strong>
+        <span>{{ product.unit }}</span>
+      </div>
+
+      <form method="post" action="{{ url_for('cart.add') }}" id="buy-form"
+            data-price="{{ product.price }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+
+        <div class="pdp__buy">
+          <div class="stepper">
+            <button type="button" data-step="-1" aria-label="Decrease quantity">−</button>
+            <input type="number" name="qty" id="qty" value="1" min="1" aria-label="Quantity">
+            <button type="button" data-step="1" aria-label="Increase quantity">+</button>
+          </div>
+          <span style="font-size:14px;color:#6a7a6d">
+            Subtotal <strong id="subtotal" style="color:#17281D">{{ product.price | naira }}</strong>
+          </span>
+        </div>
+
+        <div class="pdp__actions">
+          <button type="submit" class="btn btn--primary">Add to cart</button>
+          <button type="submit" name="buy_now" value="1" class="btn btn--dark">Buy now</button>
+          <button type="submit" class="btn btn--ghost"
+                  formaction="{{ url_for('cart.quote') }}" formnovalidate>Request quote</button>
+        </div>
+      </form>
+
+      <div class="pdp__notes">
+        <div><span>🌱</span><span>Harvested to order — packed the morning it ships.</span></div>
+        <div><span>🚚</span><span>Lagos next-day · nationwide 2–4 days · flat ₦3,500 delivery.</span></div>
+        <div><span>📋</span><span>Need volume? <a href="{{ url_for('leads.wholesale') }}">Ask about wholesale pricing.</a></span></div>
+      </div>
+    </div>
+  </div>
+
+  {% if related %}
+  <div style="margin-top:56px">
+    <h2 style="font-family:var(--serif);font-size:26px;font-weight:600;margin:0 0 20px">You might also like</h2>
+    <div class="product-grid">
+      {% for p in related %}{{ product_card(p) }}{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

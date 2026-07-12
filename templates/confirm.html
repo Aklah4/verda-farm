@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Order {{ order.number }} — Verda Farm{% endblock %}
+
+{# Follows the checkout, so it keeps the checkout's chrome. #}
+{% block body_class %}{{ 'app-shell' if logged_in }}{% endblock %}
+
+{% block chrome_header %}
+  {% if logged_in %}{% include "partials/sidebar.html" %}{% else %}{{ super() }}{% endif %}
+{% endblock %}
+
+{% block chrome_footer %}
+  {% if not logged_in %}{{ super() }}{% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="confirm view">
+  <div class="confirm__tick">✓</div>
+
+  <h1>Order received</h1>
+  <p style="font-size:16px;color:#4a5a4d;margin:0 0 8px">
+    Thank you, {{ order.name }}. Your order <strong>{{ order.number }}</strong> is confirmed.
+  </p>
+  <p style="font-size:14px;color:#6a7a6d;margin:0 0 28px">
+    A confirmation has been emailed to {{ order.email }}, and our team has been notified to prepare and dispatch your order.
+  </p>
+
+  <div class="receipt">
+    <div class="receipt__head">
+      <span>Order {{ order.number }}</span>
+      <span>{{ order.date }}</span>
+    </div>
+    {% for line in order.lines %}
+      <div class="receipt__line">
+        <span>{{ line.title }} × {{ line.qty }}</span>
+        <span style="font-weight:600">{{ line.line_total | naira }}</span>
+      </div>
+    {% endfor %}
+    <div class="receipt__total">
+      <span>Total paid</span>
+      <span>{{ order.total | naira }}</span>
+    </div>
+  </div>
+
+  <div class="center-actions">
+    <a class="btn btn--primary" href="{{ url_for('shop.index') }}">Continue shopping</a>
+    <a class="btn btn--ghost" href="{{ url_for('dashboard.index') }}">View my orders</a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import field, form_error, form_done %}
+
+{% block title %}Wholesale — Verda Farm{% endblock %}
+
+{% block content %}
+<div class="view">
+
+<section class="band">
+  <div class="shell" style="padding-top:56px;padding-bottom:56px">
+    <span class="eyebrow eyebrow--light">Wholesale &amp; distribution</span>
+    <h1 style="max-width:20ch">Bulk supply for supermarkets, restaurants &amp; distributors.</h1>
+    <p class="lede">Volume pricing, standing orders and a dedicated account manager. Tell us what you move and we'll build a supply plan around it.</p>
+  </div>
+</section>
+
+<section class="shell" style="padding-top:48px;padding-bottom:48px">
+  <div class="lead-layout">
+
+    <div>
+      <h2>Volume pricing</h2>
+      <div class="rate-table">
+        <div class="rate-table__row rate-table__row--head">
+          <div>Order size</div><div>Discount</div><div>Lead time</div>
+        </div>
+        {% for size, discount, lead in tiers %}
+          <div class="rate-table__row">
+            <div>{{ size }}</div><div>{{ discount }}</div><div>{{ lead }}</div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="tick-list">
+        <div><span>✓</span><span>Dedicated account manager &amp; priority dispatch</span></div>
+        <div><span>✓</span><span>30-day invoicing for verified businesses</span></div>
+        <div><span>✓</span><span>Standing weekly or monthly orders</span></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      {% if done %}
+        {{ form_done('Request received', 'An account manager will contact you within one business day to confirm pricing and set up your account.') }}
+      {% else %}
+        <h2>Request a bulk quote</h2>
+        {{ form_error(error) }}
+        <form method="post" class="form-stack" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {{ field('business', 'Business name', form) }}
+          <div class="form-row">
+            {{ field('contact', 'Contact person', form) }}
+            {{ field('region', 'Region', form) }}
+          </div>
+          <div class="form-row">
+            {{ field('product', 'Product', form) }}
+            {{ field('qty', 'Est. volume', form, placeholder='e.g. 500 kg / week') }}
+          </div>
+          {{ field('email', 'Business email', form, type='email') }}
+          <button type="submit" class="btn btn--primary btn--block">Request quote</button>
+        </form>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+</div>
+{% endblock %}

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Verda Farm{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Hanken+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+    <style>
+      :root { --accent: {{ accent }}; }
+    </style>
+  </head>
+  <body class="{% block body_class %}{% endblock %}">
+    {# The signed-in dashboard replaces this header with a left sidebar. #}
+    {% block chrome_header %}
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="{{ url_for('main.home') }}">
+          <div class="brand__mark">V</div>
+          <span class="brand__name">Verda Farm</span>
+        </a>
+
+        {# Below the nav breakpoint this whole block collapses behind the
+           hamburger; above it, `display: contents` dissolves the wrapper so the
+           nav and actions lay out in the header row exactly as they always did. #}
+        <div class="site-header__menu" id="site-menu">
+
+        {# Signed-in visitors get the app nav; the marketing links are for
+           people still deciding. #}
+        <nav class="site-nav">
+          {% if logged_in %}
+          <a
+            href="{{ url_for('shop.index') }}"
+            class="{{ 'is-active' if active in ('shop.index', 'shop.product') }}"
+            >Shop</a
+          >
+          <a
+            href="{{ url_for('dashboard.index') }}"
+            class="{{ 'is-active' if active in ('dashboard.index', 'dashboard.preferences') }}"
+            >Dashboard</a
+          >
+          {% else %}
+          <a
+            href="{{ url_for('shop.index') }}"
+            class="{{ 'is-active' if active in ('shop.index', 'shop.product') }}"
+            >Shop</a
+          >
+          <a
+            href="{{ url_for('main.about') }}"
+            class="{{ 'is-active' if active == 'main.about' }}"
+            >Our Story</a
+          >
+          <a
+            href="{{ url_for('leads.wholesale') }}"
+            class="{{ 'is-active' if active == 'leads.wholesale' }}"
+            >Wholesale</a
+          >
+          <a
+            href="{{ url_for('leads.export') }}"
+            class="{{ 'is-active' if active == 'leads.export' }}"
+            >Export</a
+          >
+          <a
+            href="{{ url_for('leads.contact') }}"
+            class="{{ 'is-active' if active == 'leads.contact' }}"
+            >Contact</a
+          >
+          {% endif %}
+        </nav>
+
+        <div class="header-actions">
+          {% if logged_in %}
+          <a
+            class="account-chip"
+            href="{{ url_for('dashboard.index') }}"
+            title="Go to your dashboard"
+          >
+            <span class="account-chip__avatar" aria-hidden="true"
+              >{{ account_name[:1] | upper }}</span
+            >
+            <span class="account-chip__name">{{ account_name }}</span>
+          </a>
+          {# Signing out changes state, so it is a POST, not a link. #}
+          <form method="post" action="{{ url_for('auth.logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="signout-btn">Sign out</button>
+          </form>
+          {% else %}
+          <a class="login-btn" href="{{ url_for('auth.login') }}">Login</a>
+          {% endif %}
+        </div>
+
+        </div>
+        {# The cart and the hamburger stay out of the collapsing menu: on a phone
+           the cart is the one control a shopper must always be able to reach. #}
+        <div class="header-rail">
+          <a class="cart-btn" href="{{ url_for('cart.index') }}">
+            Cart {% if cart_count %}<span class="cart-badge"
+              >{{ cart_count }}</span
+            >{% endif %}
+          </a>
+          <button
+            type="button"
+            class="nav-toggle"
+            data-nav-toggle="site-menu"
+            aria-controls="site-menu"
+            aria-expanded="false"
+            aria-label="Menu"
+          >
+            <span class="nav-toggle__bars" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+    </header>
+    {% endblock %}
+
+    <main>{% block content %}{% endblock %}</main>
+
+    {% block chrome_footer %}
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div>
+          <a class="brand" href="{{ url_for('main.home') }}">
+            <div class="brand__mark">V</div>
+            <span class="brand__name">Verda Farm</span>
+          </a>
+          <p>
+            Fresh produce, staples and export-grade cash crops, grown and sold
+            direct from Nigeria.
+          </p>
+          <form method="post" action="{{ url_for('main.whatsapp') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="whatsapp-btn whatsapp-btn--pill">
+              💬 WhatsApp us
+            </button>
+          </form>
+        </div>
+
+        <div>
+          <div class="footer-col__t">Shop</div>
+          <div class="footer-col__links">
+            <a href="{{ url_for('shop.index') }}">All products</a>
+            <a href="{{ url_for('leads.wholesale') }}">Wholesale</a>
+            <a href="{{ url_for('leads.export') }}">Export</a>
+            <a
+              href="{{ url_for('dashboard.index') if logged_in else url_for('auth.login') }}"
+              >My account</a
+            >
+          </div>
+        </div>
+
+        <div>
+          <div class="footer-col__t">Company</div>
+          <div class="footer-col__links">
+            <a href="{{ url_for('main.about') }}">Our story</a>
+            <a href="{{ url_for('leads.contact') }}">Contact</a>
+            <span>hello@verdafarm.ng</span>
+            <span>+234 800 123 4567</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-footer__bar">
+        <div>
+          <span>© 2026 Verda Farm. Prototype.</span>
+          <span>Edo State, Nigeria</span>
+        </div>
+      </div>
+    </footer>
+    {% endblock %}
+
+    {# A customer support channel. Pages that are not for customers drop it. #}
+    {% block chrome_fab %}
+    {% if show_whatsapp %}
+    <form method="post" action="{{ url_for('main.whatsapp') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <button
+        type="submit"
+        class="whatsapp-fab"
+        title="Chat on WhatsApp"
+        aria-label="Chat on WhatsApp"
+      >
+        💬
+      </button>
+    </form>
+    {% endif %}
+    {% endblock %}
+    {% with messages =
+    get_flashed_messages(category_filter=['toast']) %} {% if messages %}
+    <div class="toast" id="toast">{{ messages[0] }}</div>
+    {% endif %} {% endwith %}
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </body>
+</html>

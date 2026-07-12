@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import product_card %}
+
+{% block title %}Shop — Verda Farm{% endblock %}
+
+{% block content %}
+<section class="shell view" style="padding-bottom:64px">
+  <div style="margin-bottom:24px">
+    <span class="eyebrow">The shop</span>
+    <h1 class="display">Browse our products</h1>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+    {% for c in categories %}
+      <a class="chip {{ 'is-active' if c == category }}"
+         href="{{ url_for('shop.index', cat=c, aud=audience) }}">{{ c }}</a>
+    {% endfor %}
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;align-items:center">
+    <span style="font-size:12px;color:#8a978c;margin-right:4px">Buyer:</span>
+    {% for value, label in audiences %}
+      <a class="chip {{ 'is-active' if value == audience }}"
+         href="{{ url_for('shop.index', cat=category, aud=value) }}">{{ label }}</a>
+    {% endfor %}
+  </div>
+
+  {% if products %}
+    <div class="product-grid">
+      {% for p in products %}{{ product_card(p) }}{% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div style="font-size:40px;margin-bottom:12px">🌾</div>
+      <h2>Nothing matches that filter</h2>
+      <p>Try a different category or buyer type.</p>
+      <a class="btn btn--primary" href="{{ url_for('shop.index') }}">Show all products</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

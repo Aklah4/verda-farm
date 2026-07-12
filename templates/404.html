@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Not found — Verda Farm{% endblock %}
+
+{% block content %}
+<section class="notfound view">
+  <h1>404</h1>
+  <p>That page isn't in the field. Perhaps it was harvested.</p>
+  <a class="btn btn--primary" href="{{ url_for('shop.index') }}">Back to the shop</a>
+</section>
+{% endblock %}

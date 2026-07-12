@@ -1,0 +1,32 @@
+# Pinned to exact versions — these are the ones the app was built and tested
+# against. A `>=` range means a fresh deploy can silently install a different
+# release than the one anyone verified, which is both a reproducibility problem
+# and the doorway that supply-chain attacks walk through.
+#
+# To upgrade deliberately: bump a pin, reinstall, re-run the checks.
+
+# --- web framework
+Flask==3.1.3
+Werkzeug==3.1.8            # WSGI, password hashing, ProxyFix
+Jinja2==3.1.6              # templates (autoescaping is what blocks XSS here)
+MarkupSafe==3.0.3
+itsdangerous==2.2.0        # signs the session cookie
+click==8.4.2               # the flask CLI commands in cli.py
+blinker==1.9.0
+
+# --- forms & CSRF
+Flask-WTF==1.3.0           # CSRFProtect
+WTForms==3.2.2
+
+# --- config
+python-dotenv==1.2.2       # reads .env
+
+# --- database
+pymongo==4.17.0
+dnspython==2.8.0           # mongodb+srv:// needs this to resolve the Atlas host
+certifi==2026.6.17         # CA bundle; Atlas is TLS-only
+
+# --- product & hero images
+cloudinary==1.45.0
+urllib3==2.7.0
+six==1.17.0

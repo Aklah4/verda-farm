@@ -1,0 +1,85 @@
+{# Stock, as the shopper sees it. Display only — it never blocks an order. #}
+{% macro stock_note(p) %}
+  {% if p.stock is none %}
+  {% elif p.stock > 10 %}
+    <span class="stock stock--in">In stock</span>
+  {% elif p.stock > 0 %}
+    <span class="stock stock--low">Only {{ p.stock }} left</span>
+  {% else %}
+    <span class="stock stock--out">Out of stock</span>
+  {% endif %}
+{% endmacro %}
+
+
+{# The ProductCard component from the design, as a reusable macro.
+   A product with no photo yet falls back to the colour swatch. #}
+{% macro product_card(p) %}
+<article class="pcard">
+  <a class="pcard__media" href="{{ url_for('shop.product', product_id=p.id) }}" style="background:{{ p.tone }}">
+    <span class="pcard__tag">{{ p.tag }}</span>
+    {% if p.image_url %}
+      <img class="pcard__img" src="{{ p.image_url }}" alt="{{ p.name }}" loading="lazy">
+    {% else %}
+      <span class="swatch-label" style="color:{{ p.ink }};opacity:.75">{{ p.name }}</span>
+    {% endif %}
+  </a>
+  <div class="pcard__body">
+    <h3><a href="{{ url_for('shop.product', product_id=p.id) }}">{{ p.name }}</a></h3>
+    <p class="pcard__blurb">{{ p.blurb }}</p>
+    {{ stock_note(p) }}
+    <div class="pcard__price">
+      <strong>{{ p.price | naira }}</strong>
+      <span>{{ p.unit }}</span>
+    </div>
+    <div class="pcard__actions">
+      <form method="post" action="{{ url_for('cart.add') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="product_id" value="{{ p.id }}">
+        <input type="hidden" name="next" value="{{ request.full_path }}">
+        <button type="submit" class="pcard__add">Add to cart</button>
+      </form>
+      <a class="pcard__view" href="{{ url_for('shop.product', product_id=p.id) }}">View</a>
+    </div>
+  </div>
+</article>
+{% endmacro %}
+
+
+{# label + input, preserving the submitted value when validation fails.
+
+   `autocapitalize`/`autocorrect` matter on phones: a soft keyboard capitalises
+   the first letter and autocorrects as you type, so a username field left alone
+   yields "Admin" — or worse, a corrected word. Pass autocapitalize='none' for
+   anything that is an identifier rather than prose. #}
+{% macro field(name, label, form, type='text', placeholder='', autocapitalize='', autocomplete='') %}
+<div class="field">
+  <label for="f-{{ name }}">{{ label }}</label>
+  <input id="f-{{ name }}" type="{{ type }}" name="{{ name }}"
+         value="{{ form.get(name, '') }}"
+         {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+         {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+         {% if autocapitalize %}autocapitalize="{{ autocapitalize }}" autocorrect="off" spellcheck="false"{% endif %}>
+</div>
+{% endmacro %}
+
+
+{% macro textarea(name, label, form, rows=4) %}
+<div class="field">
+  <label for="f-{{ name }}">{{ label }}</label>
+  <textarea id="f-{{ name }}" name="{{ name }}" rows="{{ rows }}">{{ form.get(name, '') }}</textarea>
+</div>
+{% endmacro %}
+
+
+{% macro form_error(error) %}
+  {% if error %}<div class="form-error">{{ error }}</div>{% endif %}
+{% endmacro %}
+
+
+{% macro form_done(heading, body) %}
+<div class="form-done">
+  <div class="form-done__tick">✓</div>
+  <h3>{{ heading }}</h3>
+  <p>{{ body }}</p>
+</div>
+{% endmacro %}

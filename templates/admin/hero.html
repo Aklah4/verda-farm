@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import form_error %}
+
+{% block title %}Home page hero — Verda Admin{% endblock %}
+
+{% block body_class %}app-shell{% endblock %}
+{% block chrome_header %}{% include "partials/sidebar.html" %}{% endblock %}
+{% block chrome_footer %}{% endblock %}
+
+{% block content %}
+<section class="shell shell--app view" style="padding-bottom:64px">
+
+  <div class="dash-head">
+    <div>
+      <span class="eyebrow">Superadmin</span>
+      <h1>Home page hero</h1>
+    </div>
+    <a class="btn btn--ghost btn--sm" href="{{ url_for('main.home') }}">View home page</a>
+  </div>
+
+  <p class="admin-lede">
+    The three tiles beside the headline. A tile with no photo shows its colour
+    instead — which is also what a shopper sees while the photo loads.
+  </p>
+
+  {% if not uploads_enabled %}
+    <div class="notice">
+      <strong>Image upload is off.</strong>
+      Add your Cloudinary keys to <code>.env</code> and restart. You can still
+      rename the tiles and change their colours.
+    </div>
+  {% endif %}
+
+  {{ form_error(error) }}
+
+  {# One form for all three: the collage is a single thing to save, not three. #}
+  <form method="post" action="{{ url_for('admin.save_hero') }}"
+        enctype="multipart/form-data" class="hero-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="hero-tiles">
+      {% for t in tiles %}
+      <div class="hero-tile">
+        <div class="hero-tile__preview" style="background:{{ t.tone }}">
+          {% if t.image_url %}
+            <img src="{{ t.image_url }}" alt="{{ t.label }}">
+          {% else %}
+            <span class="swatch-label" style="color:{{ t.ink }}">{{ t.label }}</span>
+          {% endif %}
+          <span class="hero-tile__n">
+            {{ 'Large tile' if loop.first else 'Tile ' ~ (loop.index) }}
+          </span>
+        </div>
+
+        <div class="field">
+          <label for="f-label-{{ t.slot }}">Caption</label>
+          <input id="f-label-{{ t.slot }}" type="text" name="label-{{ t.slot }}"
+                 value="{{ t.label }}">
+        </div>
+
+        {% if uploads_enabled %}
+        <div class="field">
+          <label for="f-image-{{ t.slot }}">Photo</label>
+          <input id="f-image-{{ t.slot }}" type="file" name="image-{{ t.slot }}"
+                 accept="image/*">
+          <p class="hint">{{ 'Replaces the current photo.' if t.image_url else 'JPG, PNG, WebP or AVIF.' }}</p>
+        </div>
+
+        {% if t.image_url %}
+        <label class="check">
+          <input type="checkbox" name="clear-{{ t.slot }}" value="1">
+          <span>Remove photo, show the colour</span>
+        </label>
+        {% endif %}
+        {% endif %}
+
+        <div class="form-row">
+          <div class="field">
+            <label for="f-tone-{{ t.slot }}">Colour</label>
+            <input id="f-tone-{{ t.slot }}" type="color" name="tone-{{ t.slot }}"
+                   value="{{ t.tone }}">
+          </div>
+          <div class="field">
+            <label for="f-ink-{{ t.slot }}">Caption text</label>
+            <input id="f-ink-{{ t.slot }}" type="color" name="ink-{{ t.slot }}"
+                   value="{{ t.ink }}">
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn--primary">Save hero</button>
+  </form>
+
+</section>
+{% endblock %}

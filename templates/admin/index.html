@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Catalogue — Verda Admin{% endblock %}
+
+{% block body_class %}app-shell{% endblock %}
+{% block chrome_header %}{% include "partials/sidebar.html" %}{% endblock %}
+{% block chrome_footer %}{% endblock %}
+
+{% block content %}
+<section class="shell shell--app view" style="padding-bottom:64px">
+
+  <div class="dash-head">
+    <div>
+      <span class="eyebrow">Superadmin</span>
+      <h1>Catalogue</h1>
+    </div>
+    <a class="btn btn--primary btn--sm" href="{{ url_for('admin.new') }}">Add product</a>
+  </div>
+
+  {% if not uploads_enabled %}
+    <div class="notice">
+      <strong>Image upload is off.</strong>
+      Add <code>CLOUDINARY_URL</code> to your <code>.env</code> and restart, and the
+      photo field appears on every product. Everything else works without it.
+    </div>
+  {% endif %}
+
+  <div class="stat-row">
+    <div class="stat">
+      <span class="stat__label">Products</span>
+      <strong class="stat__value">{{ stats.products }}</strong>
+    </div>
+    <div class="stat">
+      <span class="stat__label">Units in stock</span>
+      <strong class="stat__value">{{ stats.units }}</strong>
+    </div>
+    <div class="stat">
+      <span class="stat__label">Out of stock</span>
+      <strong class="stat__value">{{ stats.out_of_stock }}</strong>
+    </div>
+  </div>
+
+  {% if products %}
+    <div class="table-scroll">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th class="num">Price</th>
+            <th class="num">Stock</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in products %}
+          <tr>
+            <td>
+              <div class="admin-product">
+                {% if p.image_url %}
+                  <img class="admin-thumb" src="{{ p.image_url }}" alt="" loading="lazy">
+                {% else %}
+                  <span class="admin-thumb admin-thumb--swatch" style="background:{{ p.tone }}"></span>
+                {% endif %}
+                <div>
+                  <a href="{{ url_for('admin.edit', product_id=p.id) }}">{{ p.name }}</a>
+                  <span class="admin-product__unit">{{ p.unit }}</span>
+                </div>
+              </div>
+            </td>
+            <td>{{ p.cat }}</td>
+            <td class="num">{{ p.price | naira }}</td>
+            <td class="num">
+              {% if p.stock %}
+                <span class="badge badge--done">{{ p.stock }}</span>
+              {% else %}
+                <span class="badge badge--pending">0</span>
+              {% endif %}
+            </td>
+            <td class="num">
+              <div class="admin-row-actions">
+                <a class="btn btn--ghost btn--sm" href="{{ url_for('admin.edit', product_id=p.id) }}">Edit</a>
+                {# POST, and confirmed, because it cannot be undone. The prompt
+                   is wired up in main.js: an inline onsubmit="" would force the
+                   CSP to allow inline script, which is the one thing keeping an
+                   injected payload from ever running. #}
+                <form method="post" action="{{ url_for('admin.delete', product_id=p.id) }}"
+                      data-confirm="Delete {{ p.name }}? This cannot be undone.">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn--ghost btn--sm btn--danger">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="dash-empty">
+      <p>No products yet. Add one, or run <code>flask seed-products</code> to load the starting catalogue.</p>
+      <a class="btn btn--primary btn--sm" href="{{ url_for('admin.new') }}">Add product</a>
+    </div>
+  {% endif %}
+
+</section>
+{% endblock %}
