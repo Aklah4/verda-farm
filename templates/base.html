@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}Verda Farm{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -14,9 +15,14 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/styles.css') }}"
     />
+    {# Only ever overrides the accent, never blanks it. An empty custom property
+       is valid CSS and would beat the stylesheet's default, leaving every
+       var(--accent) — buttons, the logo mark — with no colour at all. #}
+    {% if accent %}
     <style>
       :root { --accent: {{ accent }}; }
     </style>
+    {% endif %}
   </head>
   <body class="{% block body_class %}{% endblock %}">
     {# The signed-in dashboard replaces this header with a left sidebar. #}

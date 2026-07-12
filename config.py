@@ -5,6 +5,7 @@ become app config so the same knobs are available without touching templates.
 """
 
 import os
+import re
 
 from dotenv import load_dotenv
 
@@ -13,6 +14,26 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DEV_SECRET_KEY = "verda-farm-dev-secret-change-me"
+
+DEFAULT_ACCENT = "#2E7D4E"
+_HEX_COLOUR = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
+
+
+def accent_colour(raw):
+    """The accent, or the default if the value cannot safely be a CSS colour.
+
+    This one is worth guarding. The accent is written straight into a
+    `:root { --accent: ... }` block, and an empty custom property is *valid*
+    CSS — so a blank VERDA_ACCENT does not fall back to the stylesheet's
+    default, it overrides it with nothing. Every var(--accent) then resolves to
+    nothing, and the buttons and the logo lose their background entirely: they
+    render as white text on white. A hosting dashboard that stores an empty
+    string, or keeps the quotes you pasted, silently produces an invisible UI.
+
+    Anything that is not a plain hex colour is refused rather than repaired.
+    """
+    value = (raw or "").strip().strip("\"'")
+    return value if _HEX_COLOUR.match(value) else DEFAULT_ACCENT
 
 
 class Config:
@@ -45,7 +66,7 @@ class Config:
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = ENV == "production"
 
-    ACCENT = os.environ.get("VERDA_ACCENT", "#2E7D4E")
+    ACCENT = accent_colour(os.environ.get("VERDA_ACCENT"))
     HERO_LAYOUT = os.environ.get("VERDA_HERO", "split")  # "split" | "centered"
     SHOW_WHATSAPP = os.environ.get("VERDA_WHATSAPP", "1") != "0"
 
