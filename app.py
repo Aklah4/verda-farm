@@ -25,6 +25,13 @@ def create_app(config_object=Config):
     app = Flask(__name__)
     app.config.from_object(config_object)
 
+    # Re-derived here, not left as a class attribute: as a class attribute it is
+    # computed once at import from the environment, so any other way of setting
+    # ENV (a config subclass, a test, a future loader) would leave the cookie
+    # insecure while the app believed it was in production. Tie it to the value
+    # that actually ended up in config.
+    app.config["SESSION_COOKIE_SECURE"] = app.config["ENV"] == "production"
+
     check_secret_key(app)
     trust_proxy(app)
 
@@ -194,18 +201,36 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    # HOST=0.0.0.0 serves the app to the whole local network, so a phone on the
-    # same wifi can reach it at http://<this-machine's-ip>:5000.
+    # This block is for local development only. In production the app is started
+    # from the Procfile by gunicorn, which imports `app` above and never runs any
+    # of this — see the Procfile and DEPLOY.md.
+    #
+    # HOST=0.0.0.0 serves the app to the local network, so a phone on the same
+    # wifi can reach it at http://<this-machine's-ip>:<port>.
     host = os.environ.get("HOST", "127.0.0.1")
     port = int(os.environ.get("PORT", "5000"))
 
     # Werkzeug's interactive debugger runs arbitrary Python typed into the
-    # browser. Bound to localhost that is a convenience; reachable from the
-    # network it is a shell for anyone on the wifi. So the reloader stays on
-    # (that is what makes editing pleasant) and the debugger goes off the moment
-    # we are not strictly local.
+    # browser — it is a remote shell, and its PIN is not meaningful protection.
+    # Two rules, and the first one is absolute:
+    #
+    #   never in production — whatever else is set;
+    #   never off-localhost — reachable from the network means reachable by
+    #       whoever else is on that network.
+    #
+    # The reloader is independent of the debugger, so it stays on and editing
+    # still feels the same.
+    production = app.config["ENV"] == "production"
     local_only = host in ("127.0.0.1", "localhost")
+    debugger = local_only and not production
+
+    if production:
+        print(
+            "WARNING: running the development server with VERDA_ENV=production.\n"
+            "         Production should start from the Procfile (gunicorn), not "
+            "this file."
+        )
     if not local_only:
         print("serving on the local network at http://{}:{}".format(host, port))
 
-    app.run(host=host, port=port, debug=True, use_debugger=local_only)
+    app.run(host=host, port=port, debug=not production, use_debugger=debugger)
