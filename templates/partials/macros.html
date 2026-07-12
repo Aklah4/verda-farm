@@ -49,8 +49,8 @@
 
    `autocapitalize`/`autocorrect` matter on phones: a soft keyboard capitalises
    the first letter and autocorrects as you type, so a username field left alone
-   yields "Admin" — or worse, a corrected word. Pass autocapitalize='none' for
-   anything that is an identifier rather than prose. #}
+   yields a capitalised — or entirely corrected — word. Pass autocapitalize='none'
+   for anything that is an identifier rather than prose. #}
 {% macro field(name, label, form, type='text', placeholder='', autocapitalize='', autocomplete='') %}
 <div class="field">
   <label for="f-{{ name }}">{{ label }}</label>

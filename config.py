@@ -59,11 +59,16 @@ class Config:
 
     # The bootstrap superadmin, created by `flask seed-admin`.
     #
-    # The admin signs in with a plain username ("admin"), not an email — staff do
-    # not need a mailbox to manage a catalogue. It shares the accounts collection
-    # with customers, and the same unique index, so the username can never
-    # collide with a customer: registration demands a real email address, and
-    # "admin" is not one.
+    # Staff sign in with a plain username, not an email — they do not need a
+    # mailbox to manage a catalogue. It shares the accounts collection with
+    # customers, and the same unique index, so a username can never collide with
+    # a customer: registration demands a real email address, and a bare username
+    # is not one.
+    #
+    # The username is a credential, not a label. Half of a login is the name, so
+    # a guessable one ("admin", "root") hands an attacker that half for free and
+    # leaves only the password between them and the catalogue. Choose something
+    # nobody would guess, keep it in .env, and never commit it.
     #
     # Read at this command and nowhere else: no view, template or request path
     # ever touches these, so the password cannot leak into a page. It is also

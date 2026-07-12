@@ -53,9 +53,9 @@ def normalize_email(email):
 
 
 # The login handle lives in the `email` field for every account: customers sign
-# in with their address, staff with a plain username ("admin"). One field means
-# one unique index, so a customer can never register a handle that shadows an
-# admin — and registration requires a real address anyway, which "admin" is not.
+# in with their address, staff with a plain username. One field means one unique
+# index, so a customer can never register a handle that shadows a staff account —
+# and registration requires a real email address, which a bare username is not.
 normalize_handle = normalize_email
 
 

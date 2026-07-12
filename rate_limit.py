@@ -8,8 +8,8 @@ worker and the count would never add up.
 Two independent limits, and either one trips:
 
   per account — 5 failures in 15 minutes locks *that username* out. This is the
-      one that stops someone grinding a password list against "admin", however
-      many machines they spread it across.
+      one that stops someone grinding a password list against a single account,
+      however many machines they spread it across.
 
   per IP — 20 failures in 15 minutes locks *that address* out. This catches one
       machine spraying one password across many usernames, which the per-account

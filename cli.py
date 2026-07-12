@@ -14,6 +14,15 @@ import product_service
 from data import SEED_PRODUCTS
 from routes.auth import users
 
+# A username is half of a login. These are the ones an attacker tries first, so
+# choosing any of them means only the password stands between a stranger and the
+# catalogue. Refused outright rather than warned about — a warning scrolls past.
+GUESSABLE_USERNAMES = {
+    "admin", "administrator", "adm", "root", "superadmin", "superuser",
+    "sysadmin", "staff", "manager", "owner", "operator", "user", "test",
+    "verda", "shop", "store",
+}
+
 
 def register_cli(app):
     @app.cli.command("seed-admin")
@@ -38,6 +47,14 @@ def register_cli(app):
             raise SystemExit(
                 "ADMIN_USERNAME is not set. Add ADMIN_USERNAME and ADMIN_PASSWORD "
                 "to .env (see .env.example), then run this again."
+            )
+
+        if username.lower() in GUESSABLE_USERNAMES:
+            raise SystemExit(
+                "'{}' is one of the first names an attacker tries, so it gives "
+                "away half the login for free.\n"
+                "Choose something nobody would guess, set ADMIN_USERNAME in .env "
+                "to it, and run this again.".format(username)
             )
 
         try:
@@ -115,6 +132,28 @@ def register_cli(app):
             raise SystemExit("could not reach the database: {}".format(exc))
 
         click.echo("{} is now an ordinary customer.".format(email))
+
+    @app.cli.command("remove-account")
+    @click.argument("handle")
+    @click.confirmation_option(prompt="Delete this account for good?")
+    def remove_account(handle):
+        """Delete the account with HANDLE (a username or an email).
+
+        For retiring an old staff login. Demoting one leaves it sitting there
+        with its password still valid; deleting it means there is nothing left
+        to guess at.
+        """
+        try:
+            result = users.collection().delete_one(
+                {"email": users.normalize_handle(handle)}
+            )
+        except PyMongoError as exc:
+            raise SystemExit("could not reach the database: {}".format(exc))
+
+        if result.deleted_count == 0:
+            raise SystemExit("no account for '{}'.".format(handle))
+
+        click.echo("deleted '{}'. It can no longer sign in anywhere.".format(handle))
 
     @app.cli.command("seed-products")
     def seed_products():
